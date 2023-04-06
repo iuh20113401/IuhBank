@@ -9,7 +9,7 @@
     "@truffle/hdwallet-provider": "1.1.0",
     "babel-polyfill": "6.26.0",
     "babel-preset-env": "1.7.0",
-    "babel-preset-es2015": "6.24.1",
+    "babel-preset-es2015": "6.3.1",
     "babel-preset-stage-2": "6.24.1",
     "babel-preset-stage-3": "6.24.1",
     "babel-register": "6.26.0",
@@ -32,7 +32,7 @@
     "web3": "1.2.6"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "PORT=3001 react-scripts --openssl-legacy-provider start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
