@@ -69,13 +69,12 @@ io.on('connection', (socket) => {
 app.post('/login', (req, res) => {
   const { account } = req.body;
   const admin = '0x31D26987E3FBb9b861Fe302c000F7F79Be4BF54c';
-  let newRedirect= '';
+  let newRedirect= 0;
   if(account == admin){
     newRedirect = '2';
   }else{
-     newRedirect = '1';}
+    newRedirect = '1';}
   res.send(newRedirect);
-  console.log(newRedirect);
 });
 app.post('/request', (req, res) => {
   const {account}  = req.body;

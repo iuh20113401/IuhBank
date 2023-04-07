@@ -9,7 +9,7 @@ import dbank from '../iuh.png';
 import Token from '../abis/Token.json';
 import dBank from '../abis/dBank.json';
 import Web3 from 'web3';
-let role = JSON.parse(localStorage.getItem('role')) || [''];  
+let role =JSON.parse(localStorage.getItem('role'))|| ('');  
 export default class Connect extends Component{
   async componentDidMount(dispatch) {
   if(typeof window.ethereum !== 'undefined'){
@@ -59,15 +59,14 @@ export default class Connect extends Component{
       return res.json();
     })
     .then((data) => {
-      localStorage.setItem('role',data);
+      localStorage.setItem("role",data);
       window.location.reload();
     })
     .catch((error) => {
       console.error('Error:', error);
     });
-};  
+}; 
     render(){
-      console.log(role)
       if(role === 1) {
         return (<Navigate to ='/user'/>)};
       if(role === 2) {

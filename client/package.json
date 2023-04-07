@@ -21,6 +21,7 @@
     "cors": "^2.8.5",
     "dotenv": "8.2.0",
     "express": "^4.18.2",
+    "node": "^19.8.1",
     "react": "16.13.1",
     "react-bootstrap": "1.3.0",
     "react-dom": "16.13.1",
@@ -32,15 +33,15 @@
     "web3": "1.2.6"
   },
   "scripts": {
-    "start": "react-scripts --openssl-legacy-provider start",
-    "build": "react-scripts build",
+    "start": "react-scripts --openssl-legacy-provider start ",
+    "build": "react-scripts --openssl-legacy-provider build  ",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": "react-app"
   },
-   "peerDependencies": {
+  "peerDependencies": {
     "react": "16.13.1",
     "react-dom": "16.13.1"
   },

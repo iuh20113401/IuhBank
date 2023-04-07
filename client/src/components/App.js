@@ -13,7 +13,7 @@ function App ()  {
       return(
         <Router>
           <Routes>
-          <Route  path ='/' element={<LoginForm/>}/>
+          <Route  path ='/' element={<LoginForm socket = {socket}/>}/>
           <Route path = '/admin' element = {<Admin socket = {socket}/>} />
           <Route path = '/user' element ={<User socket = {socket}/>} />
         </Routes>

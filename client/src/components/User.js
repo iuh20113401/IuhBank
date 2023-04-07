@@ -38,16 +38,13 @@ function ModalShow(props){
 }
 export default class Begin extends React.Component {
   render() {
-    console.log(userAccount)
-    if(userAccount == 1){
-      return(
+       return(
         <User socket = {this.props.socket} />)}
-    return <Navigate to="/" />
-  }
 }
 class User extends Component{
   async loadBlockchainData(dispatch) {
     if(typeof window.ethereum !== 'undefined'){
+      try{
       const web3 = new Web3(window.ethereum)
       const netId = await web3.eth.net.getId()
       const accounts = await web3.eth.getAccounts()
@@ -57,10 +54,18 @@ class User extends Component{
         const dbank = new web3.eth.Contract(dBank.abi, dBank.networks[netId].address)
         const dBankAddress = dBank.networks[netId].address
         this.setState({token: token, dbank: dbank, dBankAddress: dBankAddress})
-
-        await this.getInfo(); // Sử dụng await để đợi cho hàm getInfo hoàn thành
+        console.log(this.state);
+        await this.getInfo();
+         // Sử dụng await để đợi cho hàm getInfo hoàn thành
         this.setState({ connect: true }); // Sau đó mới gán giá trị true cho biến connect
+      }catch (e) {
+            console.log('Error', e)
+            window.alert('Contracts not deployed to the current network')
+           this.setState({ connect: true });
+          }
           
+    }else {
+      window.alert('Please install MetaMask')
     }
   }
   async getInfo(){
@@ -169,7 +174,7 @@ class User extends Component{
         amount = amount * 10**18;
         await this.state.token.methods.approve(this.state.dBankAddress, amount.toString()).send({from: this.state.account})
         await this.state.dbank.methods.CocWithToken(amount.toString()).send({from:this.state.account});
-        fetch('http://localhost:3000/method', {
+        fetch('http://localhost:3001/method', {
           method: 'POST',
           headers: {
           'Content-Type': 'application/json',
@@ -279,6 +284,9 @@ class User extends Component{
       connect: false,
     }
   }
+  async logout(){
+    localStorage.setItem('role',0);
+  }
 
   // dùng để tạo giao diện website 
   render() {
@@ -305,6 +313,9 @@ class User extends Component{
               <br></br>
                 <h1>Welcome to d₿ank</h1>
                 <h4>Your accoutn have : Ether: {this.state.bankBanlace}, Token: {this.state.TokenBalance},  Stake: {this.state.stake} </h4>
+                <h4>
+                  <button type='submit' onClick={this.logout()}className='btn btn-primary'>logout</button>
+                </h4>
                 <br></br>
                 <div className="row">
                   <main role="main" className="col-lg-12 d-flex text-center">
