@@ -2,7 +2,7 @@ import React from "react";
 import LoginForm from "./Login"
 import Admin from "./admin"
 import User from "./User"
-import DemoCarousel from "./slider";
+import Slider from "./slider";
 import io from 'socket.io-client';
 import Header from './header';
 import {
@@ -15,15 +15,16 @@ const socket = io('http://localhost:3000');
 function App ()  {
       return(
         <div>
-        <Header/>
+          <Header/>
         <Router>
           <Routes>
-          <Route  path ='/' element={<LoginForm socket = {socket}/>}/>
+          <Route path ='/' element ={<Slider/>}/>
+          <Route  path ='/login' element={<LoginForm socket = {socket}/>}/>
           <Route path = 'admin' element = {<Admin socket = {socket}/>} />
           <Route path = 'user' element ={<User socket = {socket}/>} />
-          <Route path ='DemoCarousel' element ={<DemoCarousel/>}/>
         </Routes>
-        </Router></div>
+        </Router>
+        </div>
       )
 }
 
