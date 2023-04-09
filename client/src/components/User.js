@@ -1,4 +1,3 @@
-import { Tabs, Tab } from 'react-bootstrap'
 import dBank from '../abis/dBank.json'
 import React, { Component,useState } from 'react';
 import Token from '../abis/Token.json'
@@ -6,14 +5,15 @@ import dbank from '../iuh.png';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Web3 from 'web3';
-import {userAccount} from './account';
-import {
-    BrowserRouter as Router,
-    Navigate 
-}from "react-router-dom"
+import {userAccount} from "./account"
+import { Tabs, Tab } from 'react-bootstrap'
+import Col from 'react-bootstrap/Col'
+import Nav from 'react-bootstrap/Nav'
+import Row from 'react-bootstrap/Row'
+import {Navigate}from "react-router-dom";
 let amount = JSON.parse(localStorage.getItem('amount')) || [0];
 let modal = localStorage.getItem('modal') || ('');
-let lender = [{account: '', value: 0, method: '', payOffAmount: 0}];
+let lender = [];
 function ModalShow(props){
   const [show, setShow] = useState(true);
   const handleClose = () => setShow(false);
@@ -38,8 +38,13 @@ function ModalShow(props){
 }
 export default class Begin extends React.Component {
   render() {
-       return(
-        <User socket = {this.props.socket} />)}
+       if(userAccount == 1){
+        return(
+        <User socket = {this.props.socket} />)
+       }else{
+        return(
+        <Navigate to = '/' />)
+       }}
 }
 class User extends Component{
   async loadBlockchainData(dispatch) {
@@ -286,6 +291,7 @@ class User extends Component{
   }
   async logout(){
     localStorage.setItem('role',0);
+    window.location.reload()
   }
 
   // dùng để tạo giao diện website 
@@ -312,209 +318,223 @@ class User extends Component{
               <div className="container-fluid mt-5 text-center">
               <br></br>
                 <h1>Welcome to d₿ank</h1>
-                <h4>Your accoutn have : Ether: {this.state.bankBanlace}, Token: {this.state.TokenBalance},  Stake: {this.state.stake} </h4>
+                <h4>Trong tài khoản bạn có : Ether gửi: {this.state.bankBanlace}, Token: {this.state.TokenBalance},  Tiền cọc: {this.state.stake} </h4>
                 <h4>
-                  <button type='submit' onClick={this.logout()}className='btn btn-primary'>logout</button>
+                  <button type='submit' onClick={this.logout.bind(this)}className='btn btn-primary'>Đăng xuất</button>
                 </h4>
                 <br></br>
-                <div className="row">
-                  <main role="main" className="col-lg-12 d-flex text-center">
-                    <div className="content mr-auto ml-auto">
-                      <Tabs defaultActiveKey="profile" id="uncontrolled-tab-example">
-                        <Tab eventKey="send" title = "Send">
-                          <div>
-                            <form>
-                            {(amount == 0) && 
-                              <div>
-                                <br></br>
-                                <button type='button'  onClick={this.sendAddress.bind(this)}className='btn btn-primary'>Send Address</button><br></br>
-                                <br></br>
-                                <button type='submit' onClick={this.handleRequest.bind(this)}className='btn btn-primary'>Refresh</button>
-                              </div>
-                            }
-                            {(amount != 0) && 
-                                <div>
-                                  <br></br>
-                                  <p>Do you want to deposit?</p>
-                                  <form onSubmit={(e) => {
-                                    e.preventDefault()
-                                    amount = amount * 10**18;
-                                    this.coc(amount);
-                                  }}>
-                                  {/* tạo form cho người dùng nhạp số lượng */}
-                                    <div className='form-group mr-sm-2'>
-                                      <br></br>
-                                      <input
-                                        type='number'
-                                        className="form-control form-control-md"
-                                        placeholder= {amount}
-                                        disabled />
-                                    </div>
-                                    <button type="submit" className='btn btn-primary'>DEPOSIT</button>{" "}
-                                    <button type="submit" className='btn btn-primary' onClick={(e) => {
-                                      e.preventDefault()
-                                      amount = amount;
-                                    this.CocWithDeposit(amount);}} >Deposit with deposit</button><br/>
-                                    <button type="submit" className='mt-2 btn btn-primary' onClick={(e) => {
-                                      e.preventDefault()
-                                      amount = amount;
-                                    this.CocWithToken(amount);}} >Deposit with Token</button>
+                  <main role="main" className="col-lg-12 d-flex text-center w-100">
+                    <div className="content  mr-auto ml-auto w-100">
+                       <Tab.Container id="left-tabs-example" defaultActiveKey="first">
+                          <Row>
+                            <Col xs={3}>
+                              <Nav variant="pills" className=" text-left flex-column">
+                                <Nav.Item>
+                                  <Nav.Link eventKey="first">Cọc tiền</Nav.Link>
+                                </Nav.Item>
+                                <Nav.Item>
+                                  <Nav.Link eventKey="second">Cho mượn tiền</Nav.Link>
+                                </Nav.Item>
+                                <Nav.Item>
+                                  <Nav.Link eventKey="third">Gửi tiền vào ngân hàng</Nav.Link>
+                                </Nav.Item>
+                                <Nav.Item>
+                                  <Nav.Link eventKey="fourth">Rút tiền</Nav.Link>
+                                </Nav.Item>
+                                <Nav.Item>
+                                  <Nav.Link eventKey="fifth">Trả nợ</Nav.Link>
+                                </Nav.Item>
+                              </Nav>
+                            </Col>
+                            <Col xs={9}>
+                              <Tab.Content>
+                                <Tab.Pane eventKey="first">
+                                 <div>
+                                   <form>
+                                        {(amount == 0) && 
+                                          <div>
+                                            <br></br>
+                                            <button type='button'  onClick={this.sendAddress.bind(this)}className='btn btn-primary'>Send Address</button><br></br>
+                                            <br></br>
+                                            <button type='submit' onClick={this.handleRequest.bind(this)}className='btn btn-primary'>Refresh</button>
+                                          </div>
+                                        }
+                                        {(amount != 0) && 
+                                            <div>
+                                              <br></br>
+                                              <p>Do you want to deposit?</p>
+                                              <form onSubmit={(e) => {
+                                                e.preventDefault()
+                                                amount = amount * 10**18;
+                                                this.coc(amount);
+                                              }}>
+                                              {/* tạo form cho người dùng nhạp số lượng */}
+                                                <div className='form-group mr-sm-2'>
+                                                  <br></br>
+                                                  <input
+                                                    type='number'
+                                                    className="form-control form-control-md"
+                                                    placeholder= {amount}
+                                                    disabled />
+                                                </div>
+                                                <button type="submit" className='btn btn-primary'>DEPOSIT</button>{" "}
+                                                <button type="submit" className='btn btn-primary' onClick={(e) => {
+                                                  e.preventDefault()
+                                                  amount = amount;
+                                                this.CocWithDeposit(amount);}} >Deposit with deposit</button><br/>
+                                                <button type="submit" className='mt-2 btn btn-primary' onClick={(e) => {
+                                                  e.preventDefault()
+                                                  amount = amount;
+                                                this.CocWithToken(amount);}} >Deposit with Token</button>
+                                              </form>
+                                            </div>}
                                   </form>
-                                </div>}
-                            </form>
-                          </div>
-                        </Tab>
-                        <Tab eventKey="lend" title="lend">
-                          <div>
-                            <br></br>
-                            How much do you want to deposit?
-                            <br></br>
-                            (min. amount is 0.01 ETH)
-                            <br></br>
-                            (1 deposit is possible at the time)
-                            <br></br>
-                            <form >
-                              {/* tạo form cho người dùng nhạp số lượng */}
-                              <div className='form-group mr-sm-2'>
-                                <br></br>
-                                  <input
-                                    id='address'
-                                    type='text'
-                                    ref={(input) => { this.address = input }}
-                                    className="form-control form-control-md"
-                                    placeholder='adress...'
-                                    required />
-                                  <br></br>
-                                  <input
-                                    id='amountSend'
-                                    type='number'
-                                    ref={(input) => { this.amountSend = input }}
-                                    className="form-control form-control-md"
-                                    placeholder='amount to lend...'
-                                    required />
-                                  <br></br>
-                                  <input
-                                    id='interest'
-                                    type='number'
-                                    ref={(input) => { this.interest = input }}
-                                    className="form-control form-control-md"
-                                    placeholder='interest to lend...'
-                                    required />
-                              </div>
-                              <button type='button' className='m-3 mt-0 btn btn-primary' onClick={(e) => {
-                                e.preventDefault()
-                                let amountsend = this.amountSend.value
-                                let interest = this.interest.value
-                                let address = this.address.value
-                                this.lendToken(address,amountsend,interest);
-                              }}>lendToken</button>
-                              <button type='button'  className='btn btn-primary m-3 mt-0' onClick={(e) => {
-                                e.preventDefault()
-                                let amountsend = this.amountSend.value
-                                let interest = this.interest.value
-                                let address = this.address.value
-                                this.lendDerectly(address,amountsend,interest);
-                              }}>lendDerectly</button>
+                                 </div>
+                                </Tab.Pane>
+                                <Tab.Pane eventKey="second">
+                                  <div>
+                                      <br></br>
+                                      Cho mượn tiền
+                                      <br></br>
+                                      <form >
+                                        {/* tạo form cho người dùng nhạp số lượng */}
+                                        <div className='form-group mr-sm-2'>
+                                          <br></br>
+                                            <input
+                                              id='address'
+                                              type='text'
+                                              ref={(input) => { this.address = input }}
+                                              className="form-control form-control-md"
+                                              placeholder='adress...'
+                                              required />
+                                            <br></br>
+                                            <input
+                                              id='amountSend'
+                                              type='number'
+                                              ref={(input) => { this.amountSend = input }}
+                                              className="form-control form-control-md"
+                                              placeholder='amount to lend...'
+                                              required />
+                                            <br></br>
+                                            <input
+                                              id='interest'
+                                              type='number'
+                                              ref={(input) => { this.interest = input }}
+                                              className="form-control form-control-md"
+                                              placeholder='interest to lend...'
+                                              required />
+                                        </div>
+                                        <button type='button' className='m-3 mt-0 btn btn-primary' onClick={(e) => {
+                                          e.preventDefault()
+                                          let amountsend = this.amountSend.value
+                                          let interest = this.interest.value
+                                          let address = this.address.value
+                                          this.lendToken(address,amountsend,interest);
+                                        }}>lendToken</button>
+                                        <button type='button'  className='btn btn-primary m-3 mt-0' onClick={(e) => {
+                                          e.preventDefault()
+                                          let amountsend = this.amountSend.value
+                                          let interest = this.interest.value
+                                          let address = this.address.value
+                                          this.lendDerectly(address,amountsend,interest);
+                                        }}>lendDerectly</button>
 
-                              <button type='button' className='btn btn-primary m-3 mt-0' onClick={(e) => {
-                                e.preventDefault()
-                                let amountsend = this.amountSend.value
-                                let interest = this.interest.value
-                                let address = this.address.value
-                                this.lend(address,amountsend,interest);
-                              }}>lend</button>
-                            </form>
-                          </div>
-                        </Tab>
-                        <Tab eventKey="deposit" title="Deposit">
-                        <div>
-                          <br></br>
-                          How much do you want to deposit?
-                          <br></br>
-                          (min. amount is 0.01 ETH)
-                          <br></br>
-                          (1 deposit is possible at the time)
-                          <br></br>
-                          {/* khi người dùng nhập vào số lượng và nhấn nút submit \ */}
-                          <form onSubmit={(e) => {
-                            e.preventDefault()
-                            let amount = this.depositAmount.value
-                            amount = amount * 10**18 //convert to wei
-                            this.deposit(amount);
-                          }}>
-                            <div className='form-group mr-sm-2'>
-                              <br></br>
-                              <input
-                                id='depositAmount'
-                                step="0.01"
-                                type='number'
-                                ref={(input) => { this.depositAmount = input }}
-                                className="form-control form-control-md"
-                                placeholder='amount...'
-                                required />
-                            </div>
-                            <button type='submit' className='btn btn-primary'>DEPOSIT</button>
-                          </form>
-                        </div>
-                        </Tab>
-                        <Tab eventKey="withdraw" title="Withdraw">
-                          <br></br>
-                          Do you want to withdraw + take interest?
-                          <br></br>
-                          <br></br>
-                          <div>
-                            {/* tương tự như trên khi người dùng nhấn nút withdraw sẽ thực hiện hàm withdraw */}
-                            <button type='submit' className='btn btn-primary' onClick={(e) => this.withdraw(e)}>WITHDRAW</button>
-                          </div>
-                        </Tab>
-                        <Tab eventKey="Payoff" title="Pay off">
-                          {lender != [] && lender.map(lendercon  => lendercon.value != 0 &&
-                            <div>
-                              <form >
-                                {/* tạo form cho người dùng nhạp số lượng */}
-                                <div className='form-group mr-sm-2'>
-                                  <br></br>
-                                  <input
-                                    type='text'
-                                    className="form-control form-control-md"
-                                    placeholder= {lendercon.account} 
-                                    disabled/>
-                                  <br></br>
-                                  <input
-                                    type='number'
-                                    className="form-control form-control-md"
-                                    placeholder= {lendercon.value}
-                                    disabled
-                                    />
-                                  <br></br>
-                                  <input
-                                    type='text'
-                                    className="form-control form-control-md"
-                                    placeholder= {lendercon.method}
-                                    disabled/>
-                                  <br></br>
-                                  <input
-                                    type='text'
-                                    className="form-control form-control-md"
-                                    placeholder= {lendercon.payOffAmount} 
-                                    disabled/>
-                                </div>
-                                <button type='button' className='m-3 mt-0 btn btn-primary' onClick={(e) => {
-                                  e.preventDefault()
-                                  this.payOffToken(lendercon.account, lendercon.payOffAmount);
-                                }}>Pay off by Token</button>
-                                <button type='button' className='btn btn-primary m-3 mt-0' onClick={(e) => {
-                                  e.preventDefault()
-                                  this.payOffEther(lendercon.account, lendercon.payOffAmount);
-                                }}>Pay off by Ether</button>
-                              </form>
-                            </div>)}
-                        </Tab>
-                      </Tabs>
+                                        <button type='button' className='btn btn-primary m-3 mt-0' onClick={(e) => {
+                                          e.preventDefault()
+                                          let amountsend = this.amountSend.value
+                                          let interest = this.interest.value
+                                          let address = this.address.value
+                                          this.lend(address,amountsend,interest);
+                                        }}>lend</button>
+                                      </form>
+                                  </div>
+                                </Tab.Pane>
+                                <Tab.Pane eventKey="third">
+                                    <div>
+                                      Bạn muốn gửi bao nhiêu?
+                                      <br></br>
+                                      {/* khi người dùng nhập vào số lượng và nhấn nút submit \ */}
+                                      <form onSubmit={(e) => {
+                                        e.preventDefault()
+                                        let amount = this.depositAmount.value
+                                        amount = amount * 10**18 //convert to wei
+                                        this.deposit(amount);
+                                      }}>
+                                        <div className='form-group mr-sm-2'>
+                                          <br></br>
+                                          <input
+                                            id='depositAmount'
+                                            step="0.01"
+                                            type='number'
+                                            ref={(input) => { this.depositAmount = input }}
+                                            className="form-control form-control-md"
+                                            placeholder='amount...'
+                                            required />
+                                        </div>
+                                        <button type='submit' className='btn btn-primary'>Gửi</button>
+                                      </form>
+                                    </div>
+                                </Tab.Pane>
+                                <Tab.Pane eventKey='fourth'>
+                                      <br></br>
+                                      Bạn muốn rút toàn bộ số tiền?
+                                      <br></br>
+                                      <br></br>
+                                      <div>
+                                        <button type='submit' className='btn btn-primary' onClick={(e) => this.withdraw(e)}>Rút toàn bộ số tiền</button>
+                                      </div>
+                                </Tab.Pane>
+                                <Tab.Pane eventKey="fifth">
+                                      {lender.length == 0 && <h3>Bạn không có nợ để trả.</h3>}
+                                      {lender != [] && lender.map(lendercon  => lendercon.value != 0 &&
+                                          <div>
+                                            <form >
+                                              {/* tạo form cho người dùng nhạp số lượng */}
+                                              <div className='form-group mr-sm-2'>
+                                                <br></br>
+                                                <input
+                                                  type='text'
+                                                  className="form-control form-control-md"
+                                                  placeholder= {lendercon.account} 
+                                                  disabled/>
+                                                <br></br>
+                                                <input
+                                                  type='number'
+                                                  className="form-control form-control-md"
+                                                  placeholder= {lendercon.value}
+                                                  disabled
+                                                  />
+                                                <br></br>
+                                                <input
+                                                  type='text'
+                                                  className="form-control form-control-md"
+                                                  placeholder= {lendercon.method}
+                                                  disabled/>
+                                                <br></br>
+                                                <input
+                                                  type='text'
+                                                  className="form-control form-control-md"
+                                                  placeholder= {lendercon.payOffAmount} 
+                                                  disabled/>
+                                              </div>
+                                              <button type='button' className='m-3 mt-0 btn btn-primary' onClick={(e) => {
+                                                e.preventDefault()
+                                                this.payOffToken(lendercon.account, lendercon.payOffAmount);
+                                              }}>Pay off by Token</button>
+                                              <button type='button' className='btn btn-primary m-3 mt-0' onClick={(e) => {
+                                                e.preventDefault()
+                                                this.payOffEther(lendercon.account, lendercon.payOffAmount);
+                                              }}>Pay off by Ether</button>
+                                            </form>
+                                          </div>)}
+                                </Tab.Pane>
+                              </Tab.Content>
+                            </Col>
+                          </Row>
+                      </Tab.Container>
                     </div>
                   </main>
                 </div>
-              </div>
             </div>}
         </div>
       </div>

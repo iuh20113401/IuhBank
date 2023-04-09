@@ -1,4 +1,7 @@
 import { Tabs, Tab } from 'react-bootstrap'
+import Col from 'react-bootstrap/Col'
+import Nav from 'react-bootstrap/Nav'
+import Row from 'react-bootstrap/Row'
 import dBank from '../abis/dBank.json'
 import React, { Component,useState } from 'react';
 import Token from '../abis/Token.json'
@@ -31,15 +34,12 @@ function ModalShow(props){
     <>
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Modal heading</Modal.Title>
+          <Modal.Title className = "text-center" >Thông báo</Modal.Title>
         </Modal.Header>
-        <Modal.Body>{message}</Modal.Body>
+        <Modal.Body className ="text-center" ><h5>{message}</h5></Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Close
-          </Button>
           <Button variant="primary" onClick={Reload}>
-            Save Changes
+            Xác nhận
           </Button>
         </Modal.Footer>
       </Modal>
@@ -86,7 +86,7 @@ class Admin extends Component{
       try{
         // dùng để lấy ether từ account đang liên kết vào tiền gửi
         await this.state.dbank.methods.withState(address).send({from: this.state.account})
-        localStorage.setItem('modal',"WithStake successfully");
+        localStorage.setItem('modal',"Bạn trả tiền cọc thành công");
         window.location.reload()
       } catch (e) {
         // báo lỗi nếu việc lấy giá trị bị lỗi
@@ -99,7 +99,7 @@ class Admin extends Component{
       try{
         // dùng để lấy ether từ account đang liên kết vào tiền gửi
         await this.state.dbank.methods.withStateToken(address).send({from: this.state.account})
-        localStorage.setItem('modal',"With Stake successfully");
+        localStorage.setItem('modal',"Bạn trả tiền cọc thành công");
         window.location.reload()
       } catch (e) {
         // báo lỗi nếu việc lấy giá trị bị lỗi
@@ -127,8 +127,8 @@ class Admin extends Component{
     user = message;
     console.log(user)
   })
-  if(user != []){
-    localStorage.setItem('modal',"You have a request");
+  if(user !== []){
+    localStorage.setItem('modal',"Bạn có một yêu cầu");
   }
 } 
   async Reload(){
@@ -139,7 +139,7 @@ class Admin extends Component{
     value : amount,
     id: id
     })};
-    localStorage.setItem('modal',"You send successfully");
+    localStorage.setItem('modal',"Bạn gửi yêu cầu thành công");
     window.location.reload();
   }
 
@@ -150,82 +150,86 @@ class Admin extends Component{
       <div  className='text-monospace' >
         {this.state.connect == false && <div onLoad={this.loadBlockchainData(this.props.dispatch)}></div>}
         {this.state.connect == true && <div>
-          <nav className="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow" onLoad={this.ReceiveAddress}>
-            <a
-              className="navbar-brand col-sm-3 col-md-2 mr-0"
-              href="#"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-            <img src={dbank} className="App-logo" alt="logo" height="32"/>
-              <b>d₿ank</b>
-            </a>
-          </nav>
           <div className="container-fluid mt-5 text-center">
             <br></br>
-            <h1>Welcome to d₿ank</h1>
-            <h2>{this.state.account}</h2>
+            <h1>Welcome to IUHBANK</h1>
+            <h2>You are admin</h2>
             <br></br>
             <div className="row">
-              <main role="main" className="col-lg-12 d-flex text-center">
-                <div className="content mr-auto ml-auto">
-                  <Tabs defaultActiveKey="profile" id="uncontrolled-tab-example">
-                    <Tab eventKey='sendRequest' title ="Send Request">
-                      <form >
-                        {(user != []) && user.map(user => (
-                          <div>
-                            <div className='form-group mr-sm-2'>
-                              <br></br>
-                              <input 
-                                type='text'
-                                className="form-control form-control-md"
-                                placeholder= {user.id}
-                                disabled />
-                              <br></br>
-                              <input
-                                id='ether'
-                                type='number'
-                                ref={(input) => { this.ether = input }}
-                                className="form-control form-control-md"
-                                placeholder='stake...'
-                                required />
-                            </div>
-                            <button type='button' className='btn btn-primary' onClick={(e) =>{
-                              let amount = this.ether.value
-                              this.SendRequest(amount,user.id)
-                            }} >Send</button></div>
-                        ))}
-                      <br></br>
-                      <button type='button' onClick={this.Reload}  className='btn btn-primary' >Refresh</button>
-                      </form>
-                    </Tab>
-                    {/* Chức năng withdraw */}
-                    <Tab eventKey="withStake" title="WithStake">
-                      {this.state.staker != [] && this.state.staker.map( staker => <div>
-                        {(staker.value != 0) && 
-                        <form>
-                            <input
-                              type='text'
-                              value= {staker.account}
-                              className="form-control form-control-md"
-                              disabled/>
-                            <br></br>
-                            <input
-                            type='number'
-                            value= {staker.value}
-                            className="form-control form-control-md"
-                            disabled/>
-                            <br></br>
-                            <button type='button' className='btn btn-primary' onClick={(e) =>{
-                              this.withstake(staker.account);}
-                            }>Withstake</button>
-                        </form>
-                        }</div>)
-                      }
-                      <br></br>
-                      <button type='button' className='btn btn-primary' onClick={this.Reload}>Refresh</button>
-                    </Tab>
-                  </Tabs>
+              <main role="main" className="col-lg-12 d-flex text-center w-100">
+                <div className="content mr-auto ml-auto w-100">
+                  <Tab.Container id="left-tabs-example" defaultActiveKey="first">
+                    <Row>
+                      <Col xs={3}>
+                                <Nav variant="pills" className=" text-left flex-column">
+                                  <Nav.Item>
+                                    <Nav.Link eventKey="first">Yêu cầu cọc tiền</Nav.Link>
+                                  </Nav.Item>
+                                  <Nav.Item>
+                                    <Nav.Link eventKey="second">Quản lý tiền cọc</Nav.Link>
+                                  </Nav.Item>
+                                </Nav>
+                      </Col>
+                      <Col xs={9}>
+                                <Tab.Content>
+                                  <Tab.Pane eventKey ='first'>
+                                    <form >
+                                      {(user != []) && user.map(user => (
+                                        <div>
+                                          <div className='form-group mr-sm-2'>
+                                            <br></br>
+                                            <input 
+                                              type='text'
+                                              className="form-control form-control-md"
+                                              placeholder= {user.id}
+                                              disabled />
+                                            <br></br>
+                                            <input
+                                              id='ether'
+                                              type='number'
+                                              ref={(input) => { this.ether = input }}
+                                              className="form-control form-control-md"
+                                              placeholder='Số tiền cần cọc...'
+                                              required />
+                                          </div>
+                                          <button type='button' className='btn btn-primary' onClick={(e) =>{
+                                            let amount = this.ether.value
+                                            this.SendRequest(amount,user.id)
+                                          }} >Gửi yêu cầu</button></div>
+                                      ))}
+                                      <br></br>
+                                      <button type='button' onClick={this.ReceiveAddress()}  className='btn btn-primary' >Refresh</button>
+                                    </form>
+                                  </Tab.Pane>
+                                  <Tab.Pane eventKey = 'second'>
+                                    {this.state.staker != [] && this.state.staker.map( staker => <div>
+                                    {(staker.value != 0) && 
+                                      <form>
+                                          <input
+                                            type='text'
+                                            value= {staker.account}
+                                            className="form-control form-control-md"
+                                            disabled/>
+                                          <br></br>
+                                          <input
+                                          type='number'
+                                          value= {staker.value}
+                                          className="form-control form-control-md"
+                                          disabled/>
+                                          <br></br>
+                                          <button type='button' className='btn btn-primary' onClick={(e) =>{
+                                            this.withstake(staker.account);}
+                                          }>Trả tiền cọc</button>
+                                      </form>
+                                      }</div>)
+                                    }
+                                    <br></br>
+                                    <button type='button' className='btn btn-primary' onClick={this.Reload}>Refresh</button>
+                                  </Tab.Pane>
+                                </Tab.Content>
+                      </Col>
+                    </Row>
+                  </Tab.Container>
                 </div>
               </main>
             </div>
