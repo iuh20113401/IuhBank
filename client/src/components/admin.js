@@ -140,7 +140,6 @@ class Admin extends Component{
   }
 
   render() {
-    this.ReceiveAddress = this.ReceiveAddress.bind(this)
     return (
     <div>
       {modal !== '' && <ModalShow message = {modal} />}
@@ -195,7 +194,7 @@ class Admin extends Component{
                                           }} >Gửi yêu cầu</button></div>
                                       ))}
                                       <br></br>
-                                      <button type='button' onClick={this.ReceiveAddress()}  className='btn btn-primary' >Refresh</button>
+                                      <button type='button' onClick={this.ReceiveAddress.bind(this)}  className='btn btn-primary' >Refresh</button>
                                     </form>
                                   </Tab.Pane>
                                   <Tab.Pane eventKey = 'second'>
