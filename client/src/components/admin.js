@@ -11,7 +11,7 @@ import {BrowserRouter as Router, Navigate }from "react-router-dom"
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 let room = '';
-let user = [];
+let user = localStorage.getItem('user') || ('');;
 let userStake =[];
 let modal = localStorage.getItem('modal') || ('');
 export default class Begin extends Component{
@@ -78,7 +78,28 @@ class Admin extends Component{
       window.alert('Please install MetaMask')
     }
   }
-  
+  componentDidMount() {
+    fetch('https://iuh-bank-server.onrender.com/admin', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({account: this.state.account}),
+  })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return res.json();
+    })
+    .then((data) => {
+      user = data;
+      localStorage.setItem('modal',"Bạn có yêu cầu đặt cọc");
+    })
+    .catch((error) => {
+      window.location.reload();
+    });
+  }
   async withstake(address) {
     if(this.state.dbank!=='undefined'){
       try{
@@ -139,31 +160,6 @@ class Admin extends Component{
     localStorage.setItem('modal',`Bạn có ${user.length} yêu cầu`);
   }
 } 
-handleRequest = (e) => {
-  e.preventDefault();
-  let account = this.state.account;
-  return fetch('https://iuh-bank-server.onrender.com/request', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({account: this.state.account}),
-  })
-    .then((res) => {
-      if (!res.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return res.json();
-    })
-    .then((data) => {
-      user = data;
-      localStorage.setItem('modal',"Bạn có yêu cầu đặt cọc");
-      window.location.reload();
-    })
-    .catch((error) => {
-      window.location.reload();
-    });
-};
   async SendRequest(amount,id){
     {this.props.socket.emit('userValue',{
     value : amount,
@@ -172,7 +168,9 @@ handleRequest = (e) => {
     localStorage.setItem('modal',"Bạn gửi yêu cầu thành công");
     window.location.reload();
   }
-
+  Reload(){
+    window.location.reload();
+  }
   render() {
     return (
     <div >
@@ -228,7 +226,7 @@ handleRequest = (e) => {
                                           }} >Gửi yêu cầu</button></div>
                                       ))}
                                       <br></br>
-                                      <button type='button' onClick={this.handleRequest.bind(this)}className='btn btn-primary' >Refresh</button>
+                                      <button type='button' onClick={this.Reload.bind(this)}  className='btn btn-primary' >Refresh</button>
                                     </form>
                                   </Tab.Pane>
                                   <Tab.Pane eventKey = 'second'>
