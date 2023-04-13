@@ -124,7 +124,7 @@ class Admin extends Component{
     user = message;
   })
   if(user.length != 0){
-    localStorage.setItem('modal',`Bạn có ${user.length} yêu cầu`);
+    localStorage.setItem('modal',"Bạn có yêu cầu đặt cọc");
   }
 } 
   async Reload(){
