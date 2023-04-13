@@ -139,6 +139,30 @@ class Admin extends Component{
     localStorage.setItem('modal',`Bạn có ${user.length} yêu cầu`);
   }
 } 
+handleRequest = (e) => {
+  e.preventDefault();
+  let account = this.state.account;
+  return fetch('https://iuh-bank-server.onrender.com/admin', {
+    method: 'get',
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return res.json();
+    })
+    .then((data) => {
+      user = data;
+      localStorage.setItem('modal',"Bạn có một yêu cầu đặt cọc");
+      window.location.reload();
+    })
+    .catch((error) => {
+      window.location.reload();
+    });
+};
   async Reload(){
     window.location.reload();
   }
@@ -152,9 +176,8 @@ class Admin extends Component{
   }
 
   render() {
-    this.ReceiveAddress = this.ReceiveAddress.bind(this);
     return (
-    <div onLoad={this.ReceiveAddress()} >
+    <div onLoad={this.handleRequest.bind(this)} >
       {modal !== '' && <ModalShow message = {modal} />}
       <div  className='text-monospace' >
         {this.state.connect == false && <div onLoad={this.loadBlockchainData(this.props.dispatch)}></div>}
