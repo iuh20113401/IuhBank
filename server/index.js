@@ -7,7 +7,6 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 let newUser = [];
-let userStake = [];
 const io = require("socket.io")(http, {
   cors: {
     origin: "*",
@@ -24,8 +23,9 @@ io.on('connection', (socket) => {
     }
   });
   socket.on('admin', message => {
-    console.log(message)
-    if(newUser != []){
+    console.log(message);
+    if(newUser.length != 0){
+      console.log(newUser);
       socket.emit("room",newUser);
     }
   });
@@ -53,6 +53,9 @@ io.on('connection', (socket) => {
   });
 });
 
+app.post('/admin', (req, res) => {
+  res.send(newUser); 
+});
 app.post('/login', (req, res) => {
   const { account } = req.body;
   const admin = '0x659a108C7Ba0EB2a63f3A06c95B81BfBcdF09185';
