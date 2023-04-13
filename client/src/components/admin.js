@@ -119,11 +119,11 @@ class Admin extends Component{
     }
   }
   async ReceiveAddress(){
-    fetch('https://iuh-bank-server.onrender.com/admin', {
-      method: 'POST',
+    fetch('http://localhost:3000/admin', {
+      method: 'get',
       headers: {
         'Content-Type': 'application/json',
-      },
+      }
     })
     .then((res) => {
       if (!res.ok) {
