@@ -11,7 +11,7 @@ import {BrowserRouter as Router, Navigate }from "react-router-dom"
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 let room = '';
-let user = localStorage.getItem('user') || ('');;
+let user = [];
 let userStake =[];
 let modal = localStorage.getItem('modal') || ('');
 export default class Begin extends Component{
