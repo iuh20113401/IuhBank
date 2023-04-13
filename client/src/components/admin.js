@@ -70,7 +70,6 @@ class Admin extends Component{
         }
         for (let index = 0; index < this.state.staker.length; index++) {
           this.state.staker[index].value = await this.state.dbank.methods.getStakeBalanceOf(this.state.staker[index].account).call({from:this.state.account})}
-        
         this.state.connect = true;
       } catch (e) {
             console.log('Error', e)
@@ -123,12 +122,10 @@ class Admin extends Component{
   async ReceiveAddress(){
     this.props.socket.emit('admin','enter');
     this.props.socket.on('room', (message) => {
-    console.log(message);
     user = message;
-    console.log(user)
   })
-  if(user !== []){
-    localStorage.setItem('modal',"Bạn có một yêu cầu");
+  if(user.length != 0){
+    localStorage.setItem('modal',`Bạn có ${user.length} yêu cầu`);
   }
 } 
   async Reload(){
@@ -144,13 +141,13 @@ class Admin extends Component{
   }
 
   render() {
-    this.ReceiveAddress = this.ReceiveAddress.bind(this);
+    this.ReceiveAddress = this.ReceiveAddress.bind(this)
     return (<div>
       {modal !== '' && <ModalShow message = {modal} />}
       <div  className='text-monospace' >
         {this.state.connect == false && <div onLoad={this.loadBlockchainData(this.props.dispatch)}></div>}
         {this.state.connect == true && <div>
-          <div className="container-fluid mt-5 text-center">
+          <div className="container-fluid mt-5 text-center" onLoad={this.ReceiveAddress()}>
             <br></br>
             <h1>Welcome to IUHBANK</h1>
             <h2>You are admin</h2>
@@ -198,7 +195,7 @@ class Admin extends Component{
                                           }} >Gửi yêu cầu</button></div>
                                       ))}
                                       <br></br>
-                                      <button type='button' onClick={this.ReceiveAddress()}  className='btn btn-primary' >Refresh</button>
+                                      <button type='button' onClick={this.Reload}  className='btn btn-primary' >Refresh</button>
                                     </form>
                                   </Tab.Pane>
                                   <Tab.Pane eventKey = 'second'>

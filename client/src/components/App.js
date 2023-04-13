@@ -20,8 +20,8 @@ function App ()  {
           <Routes>
           <Route path ='/' element ={<Slider/>}/>
           <Route  path ='/login' element={<LoginForm socket = {socket}/>}/>
-          <Route path = 'admin' element = {<Admin socket = {socket}/>} />
-          <Route path = 'user' element ={<User socket = {socket}/>} />
+          <Route path = '/admin' element = {<Admin socket = {socket}/>} />
+          <Route path = '/user' element ={<User socket = {socket}/>} />
         </Routes>
         </Router>
         </div>

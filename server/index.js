@@ -40,27 +40,14 @@ io.on('connection', (socket) => {
   socket.on('userValue', (data) => {
     console.log(data.id)
     console.log(data.value)
-  for (let i = 0; i < newUser.length; i++) {
-  if (newUser[i].id === data.id) {
-    newUser[i].value = data.value;
-    console.log(newUser[i]);
-    break; // Stop looping once we find the match
+    for (let i = 0; i < newUser.length; i++) {
+    if (newUser[i].id === data.id) {
+      newUser[i].value = data.value;
+      console.log(newUser[i]);
+      break; // Stop looping once we find the match
   }}
     
   });
-    socket.on('userStake', (data) => {
-    console.log(data.id)
-    console.log(data.value)
-  for (let i = 0; i < userStake.length; i++) {
-  if (userStake[i].id === data.id) {
-    userStake[i].amount = data.value;
-    console.log(userStake[i]);
-  }}
-  });
-  socket.on("GetStake", () =>{
-      socket.emit('stake',userStake);
-      console.log(userStake);
-  })
   socket.on('disconnect', () => {
     console.log('A client disconnected.');
   });
@@ -68,7 +55,7 @@ io.on('connection', (socket) => {
 
 app.post('/login', (req, res) => {
   const { account } = req.body;
-  const admin = '0xa12e9Fae4482eB7B1276e7E698d05fC2c274ADC7';
+  const admin = '0x659a108C7Ba0EB2a63f3A06c95B81BfBcdF09185';
   let newRedirect= 0;
   if(account == admin){
     newRedirect = '2';
@@ -85,14 +72,12 @@ app.post('/request', (req, res) => {
     break; // Stop looping once we find the match
   }
 }});
-app.post('/method', (req, res) => {
-  const {account, method}  = req.body;
-  console.log(account, method)
+app.post('/delete', (req, res) => {
+  const {account}  = req.body;
   for (let i = 0; i <= newUser.length; i++) {
-  if (newUser[i].id === account) {
-    const value = newUser[i].value;
-    userStake.push({id: account, amount: value, method: method});
-    newUser.remove[newUser[i]];
+  if (newUser[i].id == account) {
+    newUser.splice(i,1);
+    console.log(newUser);
     break; // Stop looping once we find the match
   }
 }

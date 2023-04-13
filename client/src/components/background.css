@@ -41,26 +41,6 @@
         -webkit-text-fill-color: transparent;
         animation: textclip 2s linear infinite;
 }
-.bigimg>h1 {
-    color: white;
-    position: relative;
-    left: 300px;
-    top: 100px;
-    text-transform: uppercase;
-    background-image: linear-gradient(-225deg,
-            #e8e6f0 0%,
-            #6d6df0 29%,
-            #fefffe 67%,
-            #368eeb 100%);
-    background-size: auto auto;
-    background-clip: border-box;
-    background-size: 200% auto;
-    color: #fff;
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: textclip 2s linear infinite;
-}
 @keyframes textclip {
     to {
         background-position: 200% center;
@@ -70,7 +50,7 @@
 
 .smallimg {
     height: 100vh;
-    background: url(../logo.png);
+    background: url(../image/bluebackground.png);
     background-size: cover;
     /* cover sẽ đảm bảo hình lắp đầy màn hình  */
     background-position: right;

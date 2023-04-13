@@ -11,7 +11,6 @@ export default class Slider extends Component {
             <div>
                 <Header/>
             <div>
-            
             <Carousel className='all' dynamicHeight ={true} showThumbs ={false} showArrows ={true}  >
                 <div class="bigimg">
                     <h1>
@@ -21,18 +20,8 @@ export default class Slider extends Component {
                                 loop:true,
                                 strings: ["Chào mừng bạn đến với website <br>của chúng tôi","Đây là website của trường IUH","Hãy bấm nút \"Kết nối\" góc phía trên bên phải để đăng nhập vào website"]
                             }}>
-                            
                         </Typewriter>
                     </h1>
-                    
-                </div>
-                <div class="smallimg">
-                    <h1>
-                        
-                    </h1>
-                </div>
-                <div class="folderimg">
-                <h1>i am folderimg image</h1>
                 </div>
             </Carousel>
             </div>

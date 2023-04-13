@@ -18,24 +18,26 @@ contract dBank {
 
   mapping(address => uint) public etherBalanceOf;
   mapping(address => bool) public isDeposited;
-  mapping(address => uint) public depositStart;
 
-  mapping (address => address) borrower;
   mapping (address => string[]) borrowMethod;
   mapping (address => mapping(address => uint)) public borrowBalanceOf;
   mapping (address => mapping(address => uint)) public TokenBorrowBalanceOf;
+
   mapping (address => address[]) lender;
   mapping (address => mapping(address => bool)) lendedEther;
   mapping (address => mapping(address => bool)) lendedToken;
   mapping (address => mapping(address => uint)) public interest;
-  mapping(address => bool) public isBorrowed;
+
+  mapping (address => mapping(address => uint)) public lendBalanceOf;
+  mapping (address => mapping(address => uint)) public TokenLendBalanceOf;
+  mapping (address => string[]) lendMethod;
+  mapping (address => address[]) borrower;
+  mapping (address => mapping(address => bool)) borrowedEther;
+  mapping (address => mapping(address => bool)) borrowedToken;
   
-  event Deposit(address indexed user, uint etherAmount, uint timeStart);
-  event Withdraw(address indexed user, uint etherAmount, uint depositTime);
 
   constructor(Token _token) public {
   token = _token;
-  etherBalanceOf[msg.sender] = 0;
   }
 
   // Khai báo một hàm dùng để gửi tiền gủi
@@ -45,25 +47,20 @@ contract dBank {
   //tạo ra biến lưu trữ số tiền gửi của người gửi
     etherBalanceOf[msg.sender] = etherBalanceOf[msg.sender] + msg.value;
   // ghi lại thời gian gửi tiền
-    depositStart[msg.sender] = depositStart[msg.sender] + block.timestamp;
-  // kích hoạt trạng thái gửi tiền
     isDeposited[msg.sender] = true; //activate deposit status
-  // Ghi lại thông tin gửi tiền của khách hàng
-    emit Deposit(msg.sender, msg.value, block.timestamp);
   }
 
   // khai báo một hàm dùng để rút tiền cộng với tiền lãi
-  function withdraw() public {
-    // kiểm tra trạng thái gửi tiền nếu không có tiền gửi thì báo lỗi
+  function withdraw() payable public {
     require(isDeposited[msg.sender]==true, 'Error, no previous deposit');
-    // khai báo một biến dùng để lưu trữ tiền gửi của người gửi
-    uint userBalance = etherBalanceOf[msg.sender]; //for event
-    uint depositTime = block.timestamp - depositStart[msg.sender];
-    payable(msg.sender).transfer(etherBalanceOf[msg.sender]); //eth 
-    depositStart[msg.sender] = 0;
-    etherBalanceOf[msg.sender] = 0;
-    isDeposited[msg.sender] = false;
-    emit Withdraw(msg.sender, userBalance, depositTime);
+
+    uint userBalance = etherBalanceOf[msg.sender]; 
+
+    payable(msg.sender).transfer(msg.value); 
+    etherBalanceOf[msg.sender] =  etherBalanceOf[msg.sender] - msg.value;
+    if(etherBalanceOf[msg.sender] == 0){
+      isDeposited[msg.sender] = false;
+    }
   }
 
   //khai báo một hàm dùng để đặt tiền cọc bằng tiền gửi trong ngân hàng từ trước
@@ -149,10 +146,14 @@ contract dBank {
     if(lendedToken[receiver][msg.sender] == false){
       lender[receiver].push(msg.sender);
       borrowMethod[receiver].push('Token'); 
+      borrower[msg.sender].push(receiver);
+      lendMethod[msg.sender].push('Token'); 
     }
     TokenBorrowBalanceOf[receiver][msg.sender] += msg.value;
+    TokenLendBalanceOf[msg.sender][receiver] += msg.value;
     interest[msg.sender][receiver] += interested;
     lendedToken[receiver][msg.sender] = true;
+    borrowedToken[msg.sender][receiver] = true;
   }
 
   // khai báo hàm để có thể cho phép sinh viên chuyển ether từ tài khoản trong ngân hàng của mình cho sinh viên khác
@@ -160,32 +161,41 @@ contract dBank {
     require(etherBalanceOf[msg.sender] >= amount,"khong du tien");
     etherBalanceOf[msg.sender] -= amount;
     borrowBalanceOf[receiver][msg.sender] += amount;
+    lendBalanceOf[msg.sender][receiver] += amount;
     interest[receiver][msg.sender] += interested;
     if(lendedEther[receiver][msg.sender] == false){
       lender[receiver].push(msg.sender);
-      borrowMethod[receiver].push('Ether');
+      borrowMethod[receiver].push('Ether'); 
+      borrower[msg.sender].push(receiver);
+      lendMethod[msg.sender].push('Ether'); 
     }
     lendedEther[receiver][msg.sender] = true; 
+    borrowedEther[msg.sender][receiver] = true;
     receiver.transfer(amount);
   }
 
   // khai báo hàm để có thể cho phép sinh viên chuyển ether từ ví của mình cho sinh viên khác
   function lendEtherDerectly(address payable receiver, uint interested) payable public{
     borrowBalanceOf[receiver][msg.sender] += msg.value;
+    lendBalanceOf[msg.sender][receiver] += msg.value;
     interest[receiver][msg.sender] += interested;
     if(lendedEther[receiver][msg.sender] == false){
       lender[receiver].push(msg.sender);
       borrowMethod[receiver].push('Ether'); 
+      borrower[msg.sender].push(receiver);
+      lendMethod[msg.sender].push('Ether'); 
     }
     lendedEther[receiver][msg.sender] = true;
+    borrowedEther[receiver][msg.sender] = true;
     receiver.transfer(msg.value);
   }
-  // khai báo hàm cho phép sinh viên tra lại tiền ether đã mượn 
+  // khai báo hàm cho phép sinh viên trả lại tiền ether đã mượn 
   function payOffEther(address payable receiver, uint amount) payable public{
     PayOffAmount =  borrowBalanceOf[msg.sender][receiver] + (interest[msg.sender][receiver] * borrowBalanceOf[msg.sender][receiver])/100;
     require(amount == PayOffAmount,"Ban phai tra du tien");
     interest[receiver][msg.sender] = 0;
     borrowBalanceOf[msg.sender][receiver] = 0;
+    lendBalanceOf[receiver][msg.sender] = 0;
     receiver.transfer(PayOffAmount);
   }
 
@@ -193,7 +203,8 @@ contract dBank {
   function payOffToken(address payable receiver) payable public{
     PayOffAmount =  TokenBorrowBalanceOf[msg.sender][receiver] + (interest[msg.sender][receiver] * TokenBorrowBalanceOf[msg.sender][receiver])/100;
     interest[receiver][msg.sender] = 0;
-    borrowBalanceOf[msg.sender][receiver] = 0;
+    TokenBorrowBalanceOf[msg.sender][receiver] = 0;
+    TokenLendBalanceOf[receiver][msg.sender] = 0;
     token.transferFrom(msg.sender, receiver, PayOffAmount);
   }
   // hàm dùng để lấy giá trị tiền đã gửi trong ngân hàng
@@ -208,7 +219,6 @@ contract dBank {
   function getStake(address sender) view public returns (uint){
     return stakeBalanceOf[sender];
   }
-
   // hàm dùng để lấy số lượng người đã đặt cọc trong ngân hàng
   function getAmountStaker() public view returns (uint){
     return staker.length;
@@ -225,7 +235,32 @@ contract dBank {
   function getStakeMethod(address receiver) public view returns(string memory){
     return StakeMethod[receiver];
   }
-
+  // lấy số lượng người đã  mượn tiền 
+  function getBorrowerAmount() public view returns(uint){
+    return borrower[msg.sender].length;
+  }
+  // lấy địa chỉ ví của người đã  mượn tiền 
+  function getBorrower(uint index) public view returns(address){
+    return borrower[msg.sender][index];
+  }
+  // lấy số tiền đã cho mượn của người cho mượn
+  function getLendBalanceOf(address receiver) public view returns (uint){
+    return lendBalanceOf[msg.sender][receiver];}
+  // lấy số token đã mượn
+  function getTokenLend(address receiver) public view returns (uint){
+    return TokenLendBalanceOf[msg.sender][receiver];}
+  // Lấy phương pháp cho mượn
+  function getLendMethod(uint index) public view returns(string memory){
+    return lendMethod[msg.sender][index]; 
+  }
+  // trả nợ bằng ether
+  function getLendPayOffAmountEther(address receiver) public view returns (uint ){
+    return lendBalanceOf[msg.sender][receiver] + (interest[receiver][msg.sender] * lendBalanceOf[msg.sender][receiver])/100;
+  }
+  // trả nợ bằng token
+  function getLendPayOffAmountToken(address receiver) public view returns (uint ){
+    return TokenLendBalanceOf[msg.sender][receiver] + (interest[receiver][msg.sender] * TokenLendBalanceOf[msg.sender][receiver])/100;
+  }
   // lấy số lượng người đã cho mượn tiền 
   function getLenderAmount() public view returns(uint){
     return lender[msg.sender].length;

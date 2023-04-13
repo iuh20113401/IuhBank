@@ -68,9 +68,9 @@ export default class Connect extends Component{
 }; 
     render(){
       if(role === 1) {
-        return (<Navigate to ='user'/>)};
+        return (<Navigate to ='/user'/>)};
       if(role === 2) {
-          return (<Navigate to ='admin'/>)}
+          return (<Navigate to ='/admin'/>)}
       return (
           <div>
             <nav className="navbar navbar-primary fixed-top bg-primary flex-md-nowrap p-0 ">

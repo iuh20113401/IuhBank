@@ -14,6 +14,7 @@ import {Navigate}from "react-router-dom";
 let amount = JSON.parse(localStorage.getItem('amount')) || [0];
 let modal = localStorage.getItem('modal') || ('');
 let lender = [];
+let borrower =[];
 function ModalShow(props){
   const [show, setShow] = useState(true);
   const handleClose = () => setShow(false);
@@ -53,16 +54,16 @@ class User extends Component{
       const web3 = new Web3(window.ethereum)
       const netId = await web3.eth.net.getId()
       const accounts = await web3.eth.getAccounts()
-        const balance = await web3.eth.getBalance(accounts[0])
-        this.setState({account: accounts[0], balance: balance, web3: web3})
-        const token = new web3.eth.Contract(Token.abi, Token.networks[netId].address)
-        const dbank = new web3.eth.Contract(dBank.abi, dBank.networks[netId].address)
-        const dBankAddress = dBank.networks[netId].address
-        this.setState({token: token, dbank: dbank, dBankAddress: dBankAddress})
-        console.log(this.state);
-        await this.getInfo();
-         // Sử dụng await để đợi cho hàm getInfo hoàn thành
-        this.setState({ connect: true }); // Sau đó mới gán giá trị true cho biến connect
+      const balance = await web3.eth.getBalance(accounts[0])
+      this.setState({account: accounts[0], balance: balance, web3: web3})
+      const token = new web3.eth.Contract(Token.abi, Token.networks[netId].address)
+      const dbank = new web3.eth.Contract(dBank.abi, dBank.networks[netId].address)
+      const dBankAddress = dBank.networks[netId].address
+      this.setState({token: token, dbank: dbank, dBankAddress: dBankAddress})
+      console.log(this.state);
+      await this.getInfo();
+      // Sử dụng await để đợi cho hàm getInfo hoàn thành
+      this.setState({ connect: true }); // Sau đó mới gán giá trị true cho biến connect
       }catch (e) {
             console.log('Error', e)
             window.alert('Contracts not deployed to the current network')
@@ -78,8 +79,7 @@ class User extends Component{
     this.state.TokenBalance = await this.state.dbank.methods.getToken(this.state.account).call({from:this.state.account})/ (10**18);
     this.state.stake = await this.state.dbank.methods.getStake(this.state.account).call({from:this.state.account}) / (10**18);
 
-    let lenderAmount = await this.state.dbank.methods.
-    getLenderAmount().call({from: this.state.account});
+    let lenderAmount = await this.state.dbank.methods.getLenderAmount().call({from: this.state.account});
     for (let index = 0; index < lenderAmount ; index++) {
     lender[index]={account: await this.state.dbank.methods.getLender(index).call({from:this.state.account})};
     lender[index].method = await this.state.dbank.methods.getBorrowMethod(index).call({from: this.state.account});
@@ -89,10 +89,20 @@ class User extends Component{
     await this.state.dbank.methods.getPayOffAmountEther(lender[index].account).call({from: this.state.account}) :
     await this.state.dbank.methods.getPayOffAmountToken(lender[index].account).call({from: this.state.account})
     }
+    let borrowerAmount = await this.state.dbank.methods.getBorrowerAmount().call({from: this.state.account});
+    for (let index = 0; index < borrowerAmount ; index++) {
+    borrower[index]={account: await this.state.dbank.methods.getBorrower(index).call({from:this.state.account})};
+    borrower[index].method = await this.state.dbank.methods.getLendMethod(index).call({from: this.state.account});
+    borrower[index].value = borrower[index].method  === "Ether" ? await this.state.dbank.methods.getLendBalanceOf(borrower[index].account).call({from:this.state.account}) : 
+    await this.state.dbank.methods.getTokenLend(borrower[index].account).call({from:this.state.account});
+    borrower[index].payOffAmount = borrower[index].method == "Ether" ? 
+    await this.state.dbank.methods.getLendPayOffAmountEther(borrower[index].account).call({from: this.state.account}) :
+    await this.state.dbank.methods.getLendPayOffAmountToken(borrower  [index].account).call({from: this.state.account})
+    }
   }
   async sendAddress(){
     this.props.socket.emit('join',this.state.account);
-    localStorage.setItem('modal',"Send request successfully");
+    localStorage.setItem('modal',"Gửi yêu cầu thành công");
     window.location.reload()
   }
   handleRequest = (e) => {
@@ -113,7 +123,7 @@ class User extends Component{
     })
     .then((data) => {
       localStorage.setItem('amount',data);
-      localStorage.setItem('modal',"You have a request to stake");
+      localStorage.setItem('modal',"Bạn có một yêu cầu đặt cọc");
       window.location.reload();
     })
     .catch((error) => {
@@ -124,31 +134,30 @@ class User extends Component{
     if(this.state.dbank!=='undefined'){
       try{
       await this.state.dbank.methods.Coc().send({value: amount.toString(), from: this.state.account});
-      fetch('http://localhost:3000/method', {
+      fetch('http://localhost:3000/delete', {
           method: 'POST',
           headers: {
           'Content-Type': 'application/json',
           },
-          body: JSON.stringify({account: this.state.account, method: 'ether'}),
+          body: JSON.stringify({account: this.state.account}),
           })
       localStorage.setItem('amount',0);
-      localStorage.setItem('modal',"You stake successfully");
+      localStorage.setItem('modal',"Bạn đặt cọc thành công");
       window.location.reload();
       } catch (e) {
-        localStorage.setItem('modal',"You stake fail");
+        localStorage.setItem('modal',"Bạn đặt cọc không thành công");
         window.location.reload()
       }
     }
   }
-  async withdraw(e) {
-    e.preventDefault()
-    if(this.state.dbank!=='undefined'){
+  async withdraw(amount) {
+    if(this.state.dbank !=='undefined'){
       try{
-        await this.state.dbank.methods.withdraw().send({from: this.state.account})
-        localStorage.setItem('modal',"You withdraw successfully");
+        await this.state.dbank.methods.withdraw().send({value: amount.toString(),from: this.state.account})
+        localStorage.setItem('modal',"Bạn đã rút tiền thành công");
         window.location.reload()
       } catch(e) {
-        localStorage.setItem('modal',"You withdraw fail");
+        localStorage.setItem('modal',"Bạn đã rút tiền thất bại");
         window.location.reload()
       }
     }
@@ -158,17 +167,17 @@ class User extends Component{
       try{
         amount = amount * 10**18
         await this.state.dbank.methods.CocWithEtherDeposit(amount.toString()).send({from:this.state.account});
-        fetch('http://localhost:3000/method', {
+        fetch('http://localhost:3000/delete', {
           method: 'POST',
           headers: {
           'Content-Type': 'application/json',
           },
-          body: JSON.stringify({account: this.state.account, method: 'ether'}),
+          body: JSON.stringify({account: this.state.account}),
           })
-          localStorage.setItem('modal',"You stake successfully");
+          localStorage.setItem('modal',"Bạn đã đặt cọc thành công");
         window.location.reload();
         } catch (e) {
-        localStorage.setItem('modal',"You stake fail");
+        localStorage.setItem('modal',"Bạn đặt cọc không thành công");
         window.location.reload()
       }
     }
@@ -179,17 +188,17 @@ class User extends Component{
         amount = amount * 10**18;
         await this.state.token.methods.approve(this.state.dBankAddress, amount.toString()).send({from: this.state.account})
         await this.state.dbank.methods.CocWithToken(amount.toString()).send({from:this.state.account});
-        fetch('http://localhost:3001/method', {
+        fetch('http://localhost:3000/delete', {
           method: 'POST',
           headers: {
           'Content-Type': 'application/json',
           },
-          body: JSON.stringify({account: this.state.account, method: 'Token'}),
+          body: JSON.stringify({account: this.state.account}),
           })
-        localStorage.setItem('modal',"You stake successfully");
+        localStorage.setItem('modal',"Bạn đã dặt cọc thành công");
         window.location.reload();
         } catch (e) {
-        localStorage.setItem('modal',"You stake fail");
+        localStorage.setItem('modal',"Bạn đặt cọc không thành công");
         window.location.reload()
       }
     }
@@ -198,10 +207,10 @@ class User extends Component{
     if(this.state.dbank!=='undefined'){
       try{
         await this.state.dbank.methods.deposit().send({value: amount.toString(), from: this.state.account});
-        localStorage.setItem('modal',"You deposit successfully");
+        localStorage.setItem('modal',"Bạn đã gửi tiền vào ngân hàng thành công");
         window.location.reload()
       } catch (e) {
-        localStorage.setItem('modal',"You deposit fail");
+        localStorage.setItem('modal',"Bạn gửi tiền vào ngân hàng không thành công");
         window.location.reload();
       }
     }
@@ -212,11 +221,11 @@ class User extends Component{
         amount = amount * 10**18;
         await this.state.token.methods.approve(this.state.dBankAddress, amount.toString()).send({from: this.state.account})
         await this.state.dbank.methods.lendToken(address, interest).send({value: amount, from:this.state.account});
-        localStorage.setItem('modal',"You lend successfully");
+        localStorage.setItem('modal',"Bạn đã cho mượn thành công");
         window.location.reload();
         } catch (e) {
         // báo lỗi nếu việc lấy giá trị bị lỗi
-        localStorage.setItem('modal',"You lend fail");
+        localStorage.setItem('modal',"Bạn cho mượn không thành công");
         window.location.reload()
       }
     }
@@ -227,10 +236,10 @@ class User extends Component{
         amountSend *= 10**18
         // Sau đó trả lại cho người dùng tiền đã thế chấp
         await this.state.dbank.methods.lendEther(address,amountSend.toString(),interest).send({from: this.state.account});
-        localStorage.setItem('modal',"You lend successfully");
+        localStorage.setItem('modal',"Bạn đã cho mượn thành công");
         window.location.reload();
       } catch (e) {
-        localStorage.setItem('modal',"You lend fail");
+        localStorage.setItem('modal',"Bạn cho mượn không thành công");
         window.location.reload()
       }
     }
@@ -240,10 +249,10 @@ class User extends Component{
       try{
         amountSend *= 10**18
         await this.state.dbank.methods.lendEtherDerectly(address,interest).send({value: amountSend.toString(),from: this.state.account});
-        localStorage.setItem('modal',"You lend successfully");
+        localStorage.setItem('modal',"Bạn đã cho mượn thành công");
         window.location.reload();
       } catch (e) {
-        localStorage.setItem('modal',"You lend fail");
+        localStorage.setItem('modal',"Bạn cho mượn không thành công");
         window.location.reload()
       }
     }
@@ -252,10 +261,10 @@ class User extends Component{
     if(this.state.dbank!=='undefined'){
       try{
         await this.state.dbank.methods.payOffEther(address,amount).send({value: amount, from: this.state.account});
-        localStorage.setItem('modal',"You PayOFf successfully");
+        localStorage.setItem('modal',"Bạn đã trả nợ thành công");
         window.location.reload();
       } catch (e) {
-        localStorage.setItem('modal',"You PayOff fail");
+        localStorage.setItem('modal',"Bạn trả nợ không thành công");
         window.location.reload()
 
       }
@@ -266,10 +275,10 @@ class User extends Component{
       try{
         await this.state.token.methods.approve(this.state.dBankAddress,amount).send({from: this.state.account})
         await this.state.dbank.methods.payOffToken(address).send({ from:this.state.account});
-        localStorage.setItem('modal',"You PayOFf successfully");
+        localStorage.setItem('modal',"Bạn đã trả nợ thành công");
         window.location.reload();
         } catch (e) {
-        localStorage.setItem('modal',"You PayOff fail");
+        localStorage.setItem('modal',"Bạn trả nợ không thành công");
         window.location.reload()
       }
     }
@@ -317,7 +326,7 @@ class User extends Component{
               </nav>
               <div className="container-fluid mt-5 text-center">
               <br></br>
-                <h1>Welcome to d₿ank</h1>
+                <h1>Welcome to IUHBANK</h1>
                 <h4>Trong tài khoản bạn có : Ether gửi: {this.state.bankBanlace}, Token: {this.state.TokenBalance},  Tiền cọc: {this.state.stake} </h4>
                 <h4>
                   <button type='submit' onClick={this.logout.bind(this)}className='btn btn-primary'>Đăng xuất</button>
@@ -344,6 +353,9 @@ class User extends Component{
                                 <Nav.Item>
                                   <Nav.Link eventKey="fifth">Trả nợ</Nav.Link>
                                 </Nav.Item>
+                                <Nav.Item>
+                                  <Nav.Link eventKey="sixth">Danh sách đã cho mượn tiền</Nav.Link>
+                                </Nav.Item>
                               </Nav>
                             </Col>
                             <Col xs={9}>
@@ -354,7 +366,7 @@ class User extends Component{
                                         {(amount == 0) && 
                                           <div>
                                             <br></br>
-                                            <button type='button'  onClick={this.sendAddress.bind(this)}className='btn btn-primary'>Send Address</button><br></br>
+                                            <button type='button'  onClick={this.sendAddress.bind(this)}className='btn btn-primary'>Gửi yêu cầu</button><br></br>
                                             <br></br>
                                             <button type='submit' onClick={this.handleRequest.bind(this)}className='btn btn-primary'>Refresh</button>
                                           </div>
@@ -362,7 +374,7 @@ class User extends Component{
                                         {(amount != 0) && 
                                             <div>
                                               <br></br>
-                                              <p>Do you want to deposit?</p>
+                                              <p>Bạn có muốn đặt cọc không?</p>
                                               <form onSubmit={(e) => {
                                                 e.preventDefault()
                                                 amount = amount * 10**18;
@@ -377,15 +389,15 @@ class User extends Component{
                                                     placeholder= {amount}
                                                     disabled />
                                                 </div>
-                                                <button type="submit" className='btn btn-primary'>DEPOSIT</button>{" "}
+                                                <button type="submit" className='btn btn-primary'>Đặt cọc trưc tiếp</button>{" "}
                                                 <button type="submit" className='btn btn-primary' onClick={(e) => {
                                                   e.preventDefault()
                                                   amount = amount;
-                                                this.CocWithDeposit(amount);}} >Deposit with deposit</button><br/>
+                                                this.CocWithDeposit(amount);}} >Đặt cọc với tài khoản ngân hàng</button><br/>
                                                 <button type="submit" className='mt-2 btn btn-primary' onClick={(e) => {
                                                   e.preventDefault()
                                                   amount = amount;
-                                                this.CocWithToken(amount);}} >Deposit with Token</button>
+                                                this.CocWithToken(amount);}} >Đặt cọc với token</button>
                                               </form>
                                             </div>}
                                   </form>
@@ -405,7 +417,7 @@ class User extends Component{
                                               type='text'
                                               ref={(input) => { this.address = input }}
                                               className="form-control form-control-md"
-                                              placeholder='adress...'
+                                              placeholder='Địa chỉ...'
                                               required />
                                             <br></br>
                                             <input
@@ -413,7 +425,7 @@ class User extends Component{
                                               type='number'
                                               ref={(input) => { this.amountSend = input }}
                                               className="form-control form-control-md"
-                                              placeholder='amount to lend...'
+                                              placeholder='Số tiền muốn cho mượn...'
                                               required />
                                             <br></br>
                                             <input
@@ -421,7 +433,7 @@ class User extends Component{
                                               type='number'
                                               ref={(input) => { this.interest = input }}
                                               className="form-control form-control-md"
-                                              placeholder='interest to lend...'
+                                              placeholder='Lãi suất...'
                                               required />
                                         </div>
                                         <button type='button' className='m-3 mt-0 btn btn-primary' onClick={(e) => {
@@ -430,14 +442,14 @@ class User extends Component{
                                           let interest = this.interest.value
                                           let address = this.address.value
                                           this.lendToken(address,amountsend,interest);
-                                        }}>lendToken</button>
+                                        }}>Token</button>
                                         <button type='button'  className='btn btn-primary m-3 mt-0' onClick={(e) => {
                                           e.preventDefault()
                                           let amountsend = this.amountSend.value
                                           let interest = this.interest.value
                                           let address = this.address.value
                                           this.lendDerectly(address,amountsend,interest);
-                                        }}>lendDerectly</button>
+                                        }}>Trực tiếp từ ví điện tử</button>
 
                                         <button type='button' className='btn btn-primary m-3 mt-0' onClick={(e) => {
                                           e.preventDefault()
@@ -445,7 +457,7 @@ class User extends Component{
                                           let interest = this.interest.value
                                           let address = this.address.value
                                           this.lend(address,amountsend,interest);
-                                        }}>lend</button>
+                                        }}>Tài khoản ngân hàng</button>
                                       </form>
                                   </div>
                                 </Tab.Pane>
@@ -468,7 +480,7 @@ class User extends Component{
                                             type='number'
                                             ref={(input) => { this.depositAmount = input }}
                                             className="form-control form-control-md"
-                                            placeholder='amount...'
+                                            placeholder='Số lượng muốn gửi...'
                                             required />
                                         </div>
                                         <button type='submit' className='btn btn-primary'>Gửi</button>
@@ -477,11 +489,28 @@ class User extends Component{
                                 </Tab.Pane>
                                 <Tab.Pane eventKey='fourth'>
                                       <br></br>
-                                      Bạn muốn rút toàn bộ số tiền?
+                                      Bạn muốn rút bao nhiêu tiền?
                                       <br></br>
                                       <br></br>
+                                      <form onSubmit={(e) => {
+                                                e.preventDefault();
+                                                let amount = this.withdrawAmount.value;
+                                                amount = amount * 10 **18;
+                                                this.withdraw(amount);
+                                              }}>
+                                              {/* tạo form cho người dùng nhạp số lượng */}
+                                                <div className='form-group mr-sm-2'>
+                                                  <br></br>
+                                                  <input
+                                                    id = 'withdrawAmount'
+                                                    type='number'
+                                                    className="form-control form-control-md"
+                                                    placeholder= "Nhập số tiền muốn rút"
+                                                    ref={(input) => { this.withdrawAmount = input }}
+                                                    />
+                                                </div>
+                                                <button type="submit" className='btn btn-primary'>Rút tiền</button></form>
                                       <div>
-                                        <button type='submit' className='btn btn-primary' onClick={(e) => this.withdraw(e)}>Rút toàn bộ số tiền</button>
                                       </div>
                                 </Tab.Pane>
                                 <Tab.Pane eventKey="fifth">
@@ -492,39 +521,150 @@ class User extends Component{
                                               {/* tạo form cho người dùng nhạp số lượng */}
                                               <div className='form-group mr-sm-2'>
                                                 <br></br>
-                                                <input
+                                                <Row>
+                                                  <Col xs={3} >
+                                                    <label>
+                                                      Địa chỉ người cho mượn
+                                                    </label>
+                                                  </Col>
+                                                <Col xs={6}>
+                                                  <input
                                                   type='text'
                                                   className="form-control form-control-md"
                                                   placeholder= {lendercon.account} 
                                                   disabled/>
+                                                </Col>
+                                                </Row>
                                                 <br></br>
-                                                <input
+                                                <Row>
+                                                  <Col xs={3} >
+                                                    <label>
+                                                      Số tiền đã mượn
+                                                    </label>
+                                                  </Col>
+                                                <Col xs={6}>
+                                                  <input
                                                   type='number'
                                                   className="form-control form-control-md"
-                                                  placeholder= {lendercon.value}
+                                                  placeholder= {lendercon.value / (10** 18)}
                                                   disabled
                                                   />
+                                                </Col>
+                                                </Row>
                                                 <br></br>
-                                                <input
+                                                <Row>
+                                                  <Col xs={3} >
+                                                    <label>
+                                                      Hình thức mượn
+                                                    </label>
+                                                  </Col>
+                                                <Col xs={6}>
+                                                  <input
                                                   type='text'
                                                   className="form-control form-control-md"
                                                   placeholder= {lendercon.method}
                                                   disabled/>
+                                                </Col>
+                                                </Row>
                                                 <br></br>
-                                                <input
+                                                <Row>
+                                                  <Col xs={3} >
+                                                    <label>
+                                                      Số tiền cần trả
+                                                    </label>
+                                                  </Col>
+                                                <Col xs={6}>
+                                                  <input
                                                   type='text'
                                                   className="form-control form-control-md"
-                                                  placeholder= {lendercon.payOffAmount} 
+                                                  placeholder= {lendercon.payOffAmount / (10 ** 18)} 
                                                   disabled/>
+                                                </Col>
+                                                </Row>
+                                                
                                               </div>
-                                              <button type='button' className='m-3 mt-0 btn btn-primary' onClick={(e) => {
+                                              {lendercon.method == "Token" && <button type='button' className='m-3 mt-0 btn btn-primary' onClick={(e) => {
                                                 e.preventDefault()
                                                 this.payOffToken(lendercon.account, lendercon.payOffAmount);
-                                              }}>Pay off by Token</button>
-                                              <button type='button' className='btn btn-primary m-3 mt-0' onClick={(e) => {
+                                              }}>Trả nợ</button>}
+                                              {lendercon.method == 'Ether' && <button type='button' className='btn btn-primary m-3 mt-0' onClick={(e) => {
                                                 e.preventDefault()
                                                 this.payOffEther(lendercon.account, lendercon.payOffAmount);
-                                              }}>Pay off by Ether</button>
+                                              }}>Trả nợ</button>}
+                                            </form>
+                                          </div>)}
+                                </Tab.Pane>
+                                <Tab.Pane eventKey="sixth">
+                                      {borrower.length == 0 && <h3>Bạn chưa có cho ai mượn tiền.</h3>}
+                                      {borrower !==[] && borrower.map(borrowercon  => borrowercon.value != 0 &&
+                                          <div>
+                                            <form >
+                                              {/* tạo form cho người dùng nhạp số lượng */}
+                                              <div className='form-group mr-sm-2'>
+                                                <br></br>
+                                                <Row>
+                                                  <Col xs={3} >
+                                                    <label>
+                                                      Địa chỉ người đã mượn
+                                                    </label>
+                                                  </Col>
+                                                <Col xs={6}>
+                                                  <input
+                                                  type='text'
+                                                  className="form-control form-control-md"
+                                                  placeholder= { borrowercon.account} 
+                                                  disabled/>
+                                                </Col>
+                                                </Row>
+                                                <br></br>
+                                                <Row>
+                                                  <Col xs={3} >
+                                                    <label>
+                                                      Số tiền đã cho mượn
+                                                    </label>
+                                                  </Col>
+                                                <Col xs={6}>
+                                                  <input
+                                                  type='number'
+                                                  className="form-control form-control-md"
+                                                  placeholder= {borrowercon.value / (10 **18)}
+                                                  disabled
+                                                  />
+                                                </Col>
+                                                </Row>
+                                                <br></br>
+                                                <Row>
+                                                  <Col xs={3} >
+                                                    <label>
+                                                      Phương thức cho mượn
+                                                    </label>
+                                                  </Col>
+                                                <Col xs={6}>
+                                                  <input
+                                                  type='text'
+                                                  className="form-control form-control-md"
+                                                  placeholder= {borrowercon.method}
+                                                  disabled/>
+                                                </Col>
+                                                </Row>
+                                                
+                                                <br></br>
+                                                <Row>
+                                                  <Col xs={3} >
+                                                    <label>
+                                                      Số tiền người mượn cần trả
+                                                    </label>
+                                                  </Col>
+                                                <Col xs={6}>
+                                                  <input
+                                                  type='text'
+                                                  className="form-control form-control-md"
+                                                  placeholder= {borrowercon.payOffAmount / (10 **18)} 
+                                                  disabled/>
+                                                </Col>
+                                                </Row>
+                                                
+                                              </div>
                                             </form>
                                           </div>)}
                                 </Tab.Pane>
