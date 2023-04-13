@@ -93,8 +93,11 @@ class Admin extends Component{
       return res.json();
     })
     .then((data) => {
+      console.log(data);
       user = data;
-      localStorage.setItem('modal',"Bạn có yêu cầu đặt cọc");
+      console.log(user);
+      if(user.length != 0){
+      localStorage.setItem('modal',"Bạn có yêu cầu đặt cọc");}
     })
     .catch((error) => {
       window.location.reload();
