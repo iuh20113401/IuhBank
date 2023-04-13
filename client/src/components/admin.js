@@ -30,6 +30,7 @@ function ModalShow(props){
   const message = props.message
   localStorage.removeItem("modal");
   return(
+    <>
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
           <Modal.Title className = "text-center" >Thông báo</Modal.Title>
