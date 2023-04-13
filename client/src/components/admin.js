@@ -30,7 +30,6 @@ function ModalShow(props){
   const message = props.message
   localStorage.removeItem("modal");
   return(
-    <>
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
           <Modal.Title className = "text-center" >Thông báo</Modal.Title>
@@ -119,7 +118,7 @@ class Admin extends Component{
     }
   }
   async ReceiveAddress(){
-    fetch('http://localhost:3000/admin', {
+    fetch('https://iuh-bank-server.onrender.com/admin', {
       method: 'get',
       headers: {
         'Content-Type': 'application/json',
