@@ -53,7 +53,7 @@ io.on('connection', (socket) => {
   });
 });
 
-app.get('/admin', (req, res) => {
+app.post('/admin', (req, res) => {
   res.send(newUser); 
 });
 app.post('/login', (req, res) => {
