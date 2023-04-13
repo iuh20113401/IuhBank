@@ -142,11 +142,12 @@ class Admin extends Component{
 handleRequest = (e) => {
   e.preventDefault();
   let account = this.state.account;
-  return fetch('https://iuh-bank-server.onrender.com/admin', {
-    method: 'get',
+  return fetch('https://iuh-bank-server.onrender.com/request', {
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-    }
+    },
+    body: JSON.stringify({account: this.state.account}),
   })
     .then((res) => {
       if (!res.ok) {
@@ -156,16 +157,13 @@ handleRequest = (e) => {
     })
     .then((data) => {
       user = data;
-      localStorage.setItem('modal',"Bạn có một yêu cầu đặt cọc");
+      localStorage.setItem('modal',"Bạn có yêu cầu đặt cọc");
       window.location.reload();
     })
     .catch((error) => {
       window.location.reload();
     });
 };
-  async Reload(){
-    window.location.reload();
-  }
   async SendRequest(amount,id){
     {this.props.socket.emit('userValue',{
     value : amount,
@@ -177,7 +175,7 @@ handleRequest = (e) => {
 
   render() {
     return (
-    <div onLoad={this.handleRequest.bind(this)} >
+    <div >
       {modal !== '' && <ModalShow message = {modal} />}
       <div  className='text-monospace' >
         {this.state.connect == false && <div onLoad={this.loadBlockchainData(this.props.dispatch)}></div>}
@@ -230,7 +228,7 @@ handleRequest = (e) => {
                                           }} >Gửi yêu cầu</button></div>
                                       ))}
                                       <br></br>
-                                      <button type='button' onClick={(e) =>   {this.Reload()}}  className='btn btn-primary' >Refresh</button>
+                                      <button type='button' onClick={this.handleRequest.bind(this)}className='btn btn-primary' >Refresh</button>
                                     </form>
                                   </Tab.Pane>
                                   <Tab.Pane eventKey = 'second'>
