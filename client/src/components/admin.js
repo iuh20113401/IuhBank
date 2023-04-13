@@ -89,7 +89,8 @@ class Admin extends Component{
         window.location.reload()
       } catch (e) {
         // báo lỗi nếu việc lấy giá trị bị lỗi
-        alert('ban khong co tien dat coc');
+            localStorage.setItem('modal',"Bạn trả cọc thất bại");
+
       }
     }
   }
@@ -102,7 +103,7 @@ class Admin extends Component{
         window.location.reload()
       } catch (e) {
         // báo lỗi nếu việc lấy giá trị bị lỗi
-        alert('ban khong co tien dat coc');
+    localStorage.setItem('modal',"Bạn trả cọc thất bại");
       }
     }
   }
@@ -210,7 +211,7 @@ class Admin extends Component{
                                           <br></br>
                                           <input
                                           type='number'
-                                          value= {staker.value}
+                                          value= {staker.value / (10**18)}
                                           className="form-control form-control-md"
                                           disabled/>
                                           <br></br>
