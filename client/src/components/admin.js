@@ -119,12 +119,24 @@ class Admin extends Component{
     }
   }
   async ReceiveAddress(){
-    this.props.socket.emit('admin','enter');
-    this.props.socket.on('room', (message) => {
-    user = message;
-  })
+    fetch('http://localhost:3000/admin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return res.json();
+    })
+    .then((data) => {
+      user = data;
+    })
+  console.log(user);
   if(user.length != 0){
-    localStorage.setItem('modal',"Bạn có yêu cầu đặt cọc");
+    localStorage.setItem('modal',`Bạn có ${user.length} yêu cầu`);
   }
 } 
   async Reload(){
@@ -142,7 +154,7 @@ class Admin extends Component{
   render() {
     this.ReceiveAddress = this.ReceiveAddress.bind(this);
     return (
-    <div>
+    <div onLoad={this.ReceiveAddress()} >
       {modal !== '' && <ModalShow message = {modal} />}
       <div  className='text-monospace' >
         {this.state.connect == false && <div onLoad={this.loadBlockchainData(this.props.dispatch)}></div>}
@@ -171,7 +183,7 @@ class Admin extends Component{
                                 <Tab.Content>
                                   <Tab.Pane eventKey ='first'>
                                     <form >
-                                      {(user != []) && user.map(user => (
+                                      {(user.length != 0) && user.map(user => (
                                         <div>
                                           <div className='form-group mr-sm-2'>
                                             <br></br>
@@ -195,7 +207,7 @@ class Admin extends Component{
                                           }} >Gửi yêu cầu</button></div>
                                       ))}
                                       <br></br>
-                                      <button type='button' onClick={this.Reload}  className='btn btn-primary' >Refresh</button>
+                                      <button type='button' onClick={(e) =>   {this.Reload()}}  className='btn btn-primary' >Refresh</button>
                                     </form>
                                   </Tab.Pane>
                                   <Tab.Pane eventKey = 'second'>
