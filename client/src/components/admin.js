@@ -5,7 +5,6 @@ import Row from 'react-bootstrap/Row'
 import dBank from '../abis/dBank.json'
 import React, { Component,useState } from 'react';
 import Token from '../abis/Token.json'
-import dbank from '../dbank.png';
 import Web3 from 'web3';
 import {adminAccount} from './adminaccount';
 import {BrowserRouter as Router, Navigate }from "react-router-dom"
@@ -89,8 +88,7 @@ class Admin extends Component{
         window.location.reload()
       } catch (e) {
         // báo lỗi nếu việc lấy giá trị bị lỗi
-            localStorage.setItem('modal',"Bạn trả cọc thất bại");
-
+        alert('ban khong co tien dat coc');
       }
     }
   }
@@ -103,7 +101,7 @@ class Admin extends Component{
         window.location.reload()
       } catch (e) {
         // báo lỗi nếu việc lấy giá trị bị lỗi
-    localStorage.setItem('modal',"Bạn trả cọc thất bại");
+        alert('ban khong co tien dat coc');
       }
     }
   }
@@ -143,12 +141,13 @@ class Admin extends Component{
 
   render() {
     this.ReceiveAddress = this.ReceiveAddress.bind(this)
-    return (<div>
+    return (
+    <div>
       {modal !== '' && <ModalShow message = {modal} />}
       <div  className='text-monospace' >
         {this.state.connect == false && <div onLoad={this.loadBlockchainData(this.props.dispatch)}></div>}
         {this.state.connect == true && <div>
-          <div className="container-fluid mt-5 text-center" >
+          <div className="container-fluid mt-5 text-center" onLoad={this.ReceiveAddress()}>
             <br></br>
             <h1>Welcome to IUHBANK</h1>
             <h2>You are admin</h2>
@@ -196,7 +195,7 @@ class Admin extends Component{
                                           }} >Gửi yêu cầu</button></div>
                                       ))}
                                       <br></br>
-                                      <button type='button' onClick={this.ReceiveAddress()}  className='btn btn-primary' >Refresh</button>
+                                      <button type='button' onClick={this.Reload}  className='btn btn-primary' >Refresh</button>
                                     </form>
                                   </Tab.Pane>
                                   <Tab.Pane eventKey = 'second'>
@@ -211,7 +210,7 @@ class Admin extends Component{
                                           <br></br>
                                           <input
                                           type='number'
-                                          value= {staker.value / (10**18)}
+                                          value= {staker.value}
                                           className="form-control form-control-md"
                                           disabled/>
                                           <br></br>
