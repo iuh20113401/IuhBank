@@ -147,7 +147,7 @@ class Admin extends Component{
       <div  className='text-monospace' >
         {this.state.connect == false && <div onLoad={this.loadBlockchainData(this.props.dispatch)}></div>}
         {this.state.connect == true && <div>
-          <div className="container-fluid mt-5 text-center" onLoad={this.ReceiveAddress()}>
+          <div className="container-fluid mt-5 text-center">
             <br></br>
             <h1>Welcome to IUHBANK</h1>
             <h2>You are admin</h2>
@@ -195,7 +195,7 @@ class Admin extends Component{
                                           }} >Gửi yêu cầu</button></div>
                                       ))}
                                       <br></br>
-                                      <button type='button' onClick={this.Reload}  className='btn btn-primary' >Refresh</button>
+                                      <button type='button' onClick={this.ReceiveAddress()}  className='btn btn-primary' >Refresh</button>
                                     </form>
                                   </Tab.Pane>
                                   <Tab.Pane eventKey = 'second'>
