@@ -79,7 +79,7 @@ class Admin extends Component{
     }
   }
   componentDidMount() {
-    fetch('http://localhost:3000/admin', {
+    fetch('https://iuh-bank-server.onrender.com/admin', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
