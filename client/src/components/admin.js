@@ -11,7 +11,7 @@ import {BrowserRouter as Router, Navigate }from "react-router-dom"
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 let room = '';
-let user = [];
+let user =JSON.parse(localStorage.getItem('user'))||[];
 let userStake =[];
 let modal = localStorage.getItem('modal') || ('');
 export default class Begin extends Component{
@@ -79,7 +79,7 @@ class Admin extends Component{
     }
   }
   componentDidMount() {
-    fetch('https://iuh-bank-server.onrender.com/admin', {
+    fetch('http://localhost:3000/admin', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -94,7 +94,8 @@ class Admin extends Component{
     })
     .then((data) => {
       console.log(data);
-      user = data;
+      localStorage.setItem('user',JSON.stringify(data));
+      user = JSON.parse(localStorage.getItem('user'));
       console.log(user);
       if(user.length != 0){
       localStorage.setItem('modal',"Bạn có yêu cầu đặt cọc");}
@@ -142,27 +143,6 @@ class Admin extends Component{
       connect: false
     }
   }
-  async ReceiveAddress(){
-    fetch('https://iuh-bank-server.onrender.com/admin', {
-      method: 'get',
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    })
-    .then((res) => {
-      if (!res.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return res.json();
-    })
-    .then((data) => {
-      user = data;
-    })
-  console.log(user);
-  if(user.length != 0){
-    localStorage.setItem('modal',`Bạn có ${user.length} yêu cầu`);
-  }
-} 
   async SendRequest(amount,id){
     {this.props.socket.emit('userValue',{
     value : amount,
