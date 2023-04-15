@@ -58,7 +58,7 @@ app.post('/admin', (req, res) => {
 });
 app.post('/login', (req, res) => {
   const { account } = req.body;
-  const admin = '0x9666e83d4a6A150b574BCE8ff30FcC5a4b89FBd0';
+  const admin = '0xa12e9Fae4482eB7B1276e7E698d05fC2c274ADC7';
   let newRedirect= 0;
   if(account == admin){
     newRedirect = '2';
