@@ -108,7 +108,7 @@ class User extends Component{
   handleRequest = (e) => {
   e.preventDefault();
   let account = this.state.account;
-  return fetch('https://iuh-bank-server.onrender.com/request', {
+  return fetch('https://iuh-bank-server-2.onrender.com/request', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -134,7 +134,7 @@ class User extends Component{
     if(this.state.dbank!=='undefined'){
       try{
       await this.state.dbank.methods.Coc().send({value: amount.toString(), from: this.state.account});
-      fetch('https://iuh-bank-server.onrender.com/delete', {
+      fetch('https://iuh-bank-server-2.onrender.com/delete', {
           method: 'POST',
           headers: {
           'Content-Type': 'application/json',
@@ -167,7 +167,7 @@ class User extends Component{
       try{
         amount = amount * 10**18
         await this.state.dbank.methods.CocWithEtherDeposit(amount.toString()).send({from:this.state.account});
-        fetch('https://iuh-bank-server.onrender.com/delete', {
+        fetch('https://iuh-bank-server-2.onrender.com/delete', {
           method: 'POST',
           headers: {
           'Content-Type': 'application/json',
@@ -188,7 +188,7 @@ class User extends Component{
         amount = amount * 10**18;
         await this.state.token.methods.approve(this.state.dBankAddress, amount.toString()).send({from: this.state.account})
         await this.state.dbank.methods.CocWithToken(amount.toString()).send({from:this.state.account});
-        fetch('https://iuh-bank-server.onrender.com/delete', {
+        fetch('https://iuh-bank-server-2.onrender.com/delete', {
           method: 'POST',
           headers: {
           'Content-Type': 'application/json',
