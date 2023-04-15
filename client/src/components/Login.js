@@ -45,7 +45,7 @@ export default class Connect extends Component{
   login = (e) => {
     e.preventDefault();
     let account = this.state.account;
-    return fetch('https://iuh-bank-server-2.onrender.com/login', {
+    return fetch('https://iuh-bank-server.onrender.com/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
