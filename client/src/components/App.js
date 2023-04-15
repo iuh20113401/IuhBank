@@ -11,7 +11,7 @@ import {
     BrowserRouter
 }from "react-router-dom"
 import { Routes  } from 'react-router-dom'
-const socket = io('https://iuh-bank-server-2.onrender.com');
+const socket = io('https://iuh-bank-server.onrender.com');
 function App ()  {
       return(
         <div>
